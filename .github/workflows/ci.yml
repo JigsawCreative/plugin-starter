@@ -81,19 +81,9 @@ jobs:
       - name: Build dist
         run: npm ci && npm run dist
 
-      - name: Zip plugin (production only)
-        run: |
-          mkdir -p temp-plugin
-          rsync -av --progress . temp-plugin/ \
-            --exclude 'tests' \
-            --exclude 'gulpfile.js' \
-            --exclude 'package.json' \
-            --exclude 'package-lock.json' \
-            --exclude 'node_modules' \
-            --exclude '.github' \
-            --exclude '.git*'
-          cd temp-plugin
-          zip -r -q ../plugin-starter.zip *
+      # 5. Zip the plugin
+      - name: Zip plugin
+        run: cd dist && zip -r ../plugin-starter.zip plugin-starter
 
       # 6. Create Git tag with PAT
       - name: Create Git tag
