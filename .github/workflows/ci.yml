@@ -10,8 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -26,47 +25,35 @@ jobs:
         with:
           php-version: '8.2'
 
-      - name: Install Composer dependencies
+      - name: Composer install
         run: composer install --no-interaction --prefer-dist
 
-      - name: Register WordPress Coding Standard
+      - name: Require WPCS
+        run: composer require --dev wp-coding-standards/wpcs:^3.0
+
+      - name: Register WPCS
         run: vendor/bin/phpcs --config-set installed_paths vendor/wp-coding-standards/wpcs
 
-      - name: PHP syntax check
+      - name: PHP lint
         run: find src -name "*.php" -exec php -l {} \;
 
-      - name: Run PHPCS
-        run: vendor/bin/phpcs --standard=WordPress src
-
-      - name: Run PHPUnit tests
+      - name: PHPUnit
         run: vendor/bin/phpunit
+
+      - name: PHPCS
+        run: vendor/bin/phpcs --standard=WordPress src
 
   release:
     needs: build-test
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-
-      - name: Install Composer dependencies
-        run: composer install --no-interaction --prefer-dist
-
+      - uses: actions/checkout@v4
       - name: Build dist
         run: npm ci && npm run dist
-
       - name: Zip plugin
-        run: |
-          cd dist
-          zip -r ../my-plugin.zip my-plugin
-
-      - name: Create GitHub Release
+        run: cd dist && zip -r ../my-plugin.zip my-plugin
+      - name: GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           files: my-plugin.zip
