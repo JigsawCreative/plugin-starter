@@ -10,8 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      # 1. Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v4
 
+      # 2. Set up Node & build assets
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
@@ -20,40 +23,55 @@ jobs:
       - name: Build JS/CSS
         run: npm ci && npm run build
 
+      # 3. Set up PHP & Composer
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
 
-      - name: Composer install
+      - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist
 
-      - name: Require WPCS
-        run: composer require --dev wp-coding-standards/wpcs:^3.0
+      # 4. Ensure PHPCS uses local WPCS
+      - name: Reset PHPCS config
+        run: ./vendor/bin/phpcs --config-delete installed_paths || true
 
       - name: Register WPCS
-        run: vendor/bin/phpcs --config-set installed_paths vendor/wp-coding-standards/wpcs
+        run: ./vendor/bin/phpcs --config-set installed_paths vendor/wp-coding-standards/wpcs
 
-      - name: PHP lint
+      - name: PHP syntax check
         run: find src -name "*.php" -exec php -l {} \;
 
-      - name: PHPUnit
-        run: vendor/bin/phpunit
+      - name: Run PHPCS
+        run: ./vendor/bin/phpcs --standard=WordPress src
 
-      - name: PHPCS
-        run: vendor/bin/phpcs --standard=WordPress src
+      - name: Run PHPUnit tests
+        run: ./vendor/bin/phpunit
 
   release:
     needs: build-test
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist
+
       - name: Build dist
         run: npm ci && npm run dist
+
       - name: Zip plugin
         run: cd dist && zip -r ../my-plugin.zip my-plugin
-      - name: GitHub Release
+
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           files: my-plugin.zip
