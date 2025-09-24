@@ -60,26 +60,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Checkout repository
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 2. Set up Node
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
+      # 3. Install Composer dependencies
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
+      # 4. Build plugin distribution
       - name: Build dist
         run: npm ci && npm run dist
 
+      # 5. Zip the plugin
       - name: Zip plugin
-        run: cd dist && zip -r ../plugin-starter.zip plugin-starter
+        run: cd dist && zip -r ../my-plugin.zip my-plugin
 
+      # 6. Create Git tag
+      - name: Create Git tag
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git tag -a "v${{ github.run_number }}" -m "Release v${{ github.run_number }}"
+          git push origin "v${{ github.run_number }}"
+
+      # 7. Create GitHub Release
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: "v${{ github.run_number }}"
           files: my-plugin.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
