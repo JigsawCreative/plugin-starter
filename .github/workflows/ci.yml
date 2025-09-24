@@ -1,5 +1,8 @@
 name: CI / Build / Release
 
+permissions:
+  contents: write  # optional, ensures GITHUB_TOKEN can push if not using PAT
+
 on:
   pull_request:
   push:
@@ -82,13 +85,15 @@ jobs:
       - name: Zip plugin
         run: cd dist && zip -r ../plugin-starter.zip plugin-starter
 
-      # 6. Create Git tag
+      # 6. Create Git tag with PAT
       - name: Create Git tag
+        env:
+          PAT_GITHUB_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN }}
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git tag -a "v${{ github.run_number }}" -m "Release v${{ github.run_number }}"
-          git push origin "v${{ github.run_number }}"
+          git push https://x-access-token:${PAT_GITHUB_TOKEN}@github.com/${{ github.repository }} v${{ github.run_number }}
 
       # 7. Create GitHub Release
       - name: Create GitHub Release
