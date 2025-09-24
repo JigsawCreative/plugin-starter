@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * Plugin Starter main class.
+ *
+ * @package PluginStarter
+ */
 namespace PluginStarter;
 
 defined( 'ABSPATH' ) || exit;
