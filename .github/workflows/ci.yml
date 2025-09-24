@@ -82,11 +82,12 @@ jobs:
         run: npm ci && npm run dist
 
       # 5. Zip the plugin (production only)
-      - name: Zip plugin
+      - name: Zip plugin (production only)
         run: |
+          # Create temp folder
           mkdir -p temp-plugin
-          # Copy only the production files
-          rsync -av --progress . temp-plugin/ \
+          # Copy only necessary plugin files
+          rsync -av --progress plugin-starter/ temp-plugin/ \
             --exclude 'tests' \
             --exclude 'gulpfile.js' \
             --exclude 'package.json' \
@@ -94,8 +95,10 @@ jobs:
             --exclude 'node_modules' \
             --exclude '.github' \
             --exclude '.git*'
+          # Go into temp folder
           cd temp-plugin
-          zip -r ../plugin-starter.zip *
+          # Create the zip quietly (fast)
+          zip -r -q ../plugin-starter.zip *
 
       # 6. Create Git tag with PAT
       - name: Create Git tag
