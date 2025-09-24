@@ -1,0 +1,15 @@
+{
+    "name": "plugin-starter",
+    "private": true,
+    "scripts": {
+        "build:js": "rollup -c",
+        "build": "npm run build:js",
+        "dist": "gulp build-dist"
+    },
+    "devDependencies": {
+        "@rollup/plugin-terser": "^0.4.4",
+        "del": "^6.1.1",
+        "gulp": "^4.0.2",
+        "rollup": "^3.29.0"
+    }
+}

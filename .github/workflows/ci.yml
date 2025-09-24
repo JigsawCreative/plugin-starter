@@ -1,0 +1,55 @@
+name: CI / Build / Release
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Build JS/CSS
+        run: npm ci && npm run build
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Composer install
+        run: composer install --no-interaction --prefer-dist
+
+      - name: PHP lint
+        run: find src -name "*.php" -exec php -l {} \;
+
+      - name: PHPUnit
+        run: vendor/bin/phpunit
+
+      - name: PHPCS
+        run: vendor/bin/phpcs --standard=WordPress src
+
+  release:
+    needs: build-test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build dist
+        run: npm ci && npm run dist
+      - name: Zip plugin
+        run: cd dist && zip -r ../my-plugin.zip my-plugin
+      - name: GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: my-plugin.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
