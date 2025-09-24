@@ -30,16 +30,16 @@ jobs:
           php-version: '8.2'
 
       - name: Install Composer dependencies
-        run: composer install --no-interaction --prefer-dist
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
       # 4. PHPCS configuration
-      - name: Reset PHPCS config
+      - name: Reset PHPCS installed paths
         run: ./vendor/bin/phpcs --config-delete installed_paths || true
 
-      - name: Register WPCS path
-        run: ./vendor/bin/phpcs --config-set installed_paths $(composer config vendor-dir)/wp-coding-standards/wpcs
+      - name: Register PHPCS standards
+        run: ./vendor/bin/phpcs --config-set installed_paths vendor/wp-coding-standards/wpcs,vendor/phpcsstandards/phpcsutils,vendor/phpcsstandards/phpcsextra
 
-      - name: Show installed PHPCS standards
+      - name: List PHPCS standards
         run: ./vendor/bin/phpcs -i
 
       # 5. PHP lint
@@ -69,7 +69,7 @@ jobs:
           node-version: 18
 
       - name: Install Composer dependencies
-        run: composer install --no-interaction --prefer-dist
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
       - name: Build dist
         run: npm ci && npm run dist
