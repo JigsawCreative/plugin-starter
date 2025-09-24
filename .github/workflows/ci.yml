@@ -80,7 +80,7 @@ jobs:
 
       # 5. Zip the plugin
       - name: Zip plugin
-        run: cd dist && zip -r ../my-plugin.zip my-plugin
+        run: cd dist && zip -r ../plugin-starter.zip plugin-starter
 
       # 6. Create Git tag
       - name: Create Git tag
@@ -95,6 +95,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: "v${{ github.run_number }}"
-          files: my-plugin.zip
+          files: plugin-starter.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
