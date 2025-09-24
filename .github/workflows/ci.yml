@@ -32,12 +32,15 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist
 
-      # 4. PHPCS config reset & registration
+      # 4. PHPCS configuration
       - name: Reset PHPCS config
         run: ./vendor/bin/phpcs --config-delete installed_paths || true
 
-      - name: Register WPCS
+      - name: Register WPCS path
         run: ./vendor/bin/phpcs --config-set installed_paths $(composer config vendor-dir)/wp-coding-standards/wpcs
+
+      - name: Show installed PHPCS standards
+        run: ./vendor/bin/phpcs -i
 
       # 5. PHP lint
       - name: PHP syntax check
