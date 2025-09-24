@@ -81,9 +81,23 @@ jobs:
       - name: Build dist
         run: npm ci && npm run dist
 
-      # 5. Zip the plugin
+      # 5. Zip the plugin (production only)
       - name: Zip plugin
-        run: cd dist && zip -r ../plugin-starter.zip plugin-starter
+        run: |
+          # Make a clean temp folder
+          mkdir -p temp-plugin
+          # Copy only the plugin PHP files, src, assets, etc.
+          rsync -av --progress plugin-starter/ temp-plugin/ \
+            --exclude 'tests' \
+            --exclude 'gulpfile.js' \
+            --exclude 'package.json' \
+            --exclude 'package-lock.json' \
+            --exclude 'node_modules' \
+            --exclude '.github' \
+            --exclude '.gitignore'
+          # Create the zip
+          cd temp-plugin
+          zip -r ../plugin-starter.zip *
 
       # 6. Create Git tag with PAT
       - name: Create Git tag
