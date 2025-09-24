@@ -75,7 +75,7 @@ jobs:
         run: npm ci && npm run dist
 
       - name: Zip plugin
-        run: cd dist && zip -r ../my-plugin.zip my-plugin
+        run: cd dist && zip -r ../plugin-starter.zip plugin-starter
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
