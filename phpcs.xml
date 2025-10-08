@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<ruleset name="ESCP">
+    <description>PHPCS rules for ES Colour Pairings plugin</description>
+
+    <!-- Base WordPress rules -->
+    <rule ref="WordPress-Core">
+        <!-- Disable file name convention check -->
+        <exclude name="WordPress.Files.FileName" />
+    </rule>
+</ruleset>
